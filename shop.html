@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tienda — Mujer Cobra</title>
+  <meta name="description" content="Compra joyería en cobre, carteras de lana y cuadros únicos de Mujer Cobra. Shop copper jewelry and handcrafted art from Chile.">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/shop.css">
+</head>
+<body>
+
+<!-- ── NAV ─────────────────────────────────────────────────── -->
+<nav class="nav scrolled" id="main-nav">
+  <a href="index.html" class="nav-logo">MUJER COBRA</a>
+  <ul class="nav-links">
+    <li><a href="index.html#coleccion" data-i18n="nav_collections">Colecciones</a></li>
+    <li><a href="shop.html" class="active" data-i18n="nav_shop">Tienda</a></li>
+    <li><a href="index.html#legado" data-i18n="nav_legacy">Legado</a></li>
+    <li><a href="index.html#contacto" data-i18n="nav_contact">Contacto</a></li>
+    <li>
+      <div class="lang-toggle">
+        <button class="lang-btn active" data-lang="es">ES</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </li>
+    <li>
+      <a href="cart.html" class="nav-cart">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span class="cart-label" data-i18n="nav_cart">Carrito</span>
+        <span class="cart-count" style="display:none">0</span>
+      </a>
+    </li>
+  </ul>
+  <button class="nav-hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ── PAGE HEADER ─────────────────────────────────────────── -->
+<div class="page-header">
+  <div class="kintsugi-bg"></div>
+  <div class="page-header-content reveal">
+    <h1><em data-i18n="nav_shop">Tienda</em></h1>
+    <p>Joyería · Textil · Cuadros · Hecho a mano en Chile</p>
+  </div>
+</div>
+
+<!-- ── FILTER BAR ──────────────────────────────────────────── -->
+<div class="shop-controls">
+  <div class="filter-tabs" id="filter-tabs">
+    <button class="filter-tab active" data-filter="all" id="tab-all">Todo / All</button>
+    <button class="filter-tab" data-filter="joyeria" id="tab-joyeria">Joyería</button>
+    <button class="filter-tab" data-filter="textil" id="tab-textil">Textil</button>
+    <button class="filter-tab" data-filter="cuadros" id="tab-cuadros">Cuadros / Paintings</button>
+  </div>
+  <select class="sort-select" id="sort-select">
+    <option value="default">Ordenar / Sort</option>
+    <option value="price-asc">Precio: menor a mayor / Price: low to high</option>
+    <option value="price-desc">Precio: mayor a menor / Price: high to low</option>
+    <option value="name">A → Z</option>
+  </select>
+</div>
+
+<!-- ── PRODUCTS ────────────────────────────────────────────── -->
+<section class="products-section">
+  <div class="products-grid" id="products-grid">
+    <!-- Rendered by shop.js -->
+    <div style="grid-column:1/-1;padding:60px;text-align:center;color:rgba(245,237,224,0.4)">
+      Cargando productos…
+    </div>
+  </div>
+</section>
+
+<!-- ── PRODUCT MODAL ───────────────────────────────────────── -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal-box">
+    <div class="modal-images"><!-- filled by shop.js --></div>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-content">
+      <div class="modal-category"></div>
+      <h2 class="modal-title"></h2>
+      <p class="modal-desc"></p>
+      <div class="modal-prices">
+        <div class="modal-price-main"></div>
+        <div class="modal-price-sub"></div>
+      </div>
+      <div class="modal-qty">
+        <label>Qty</label>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="document.getElementById('modal-qty').stepDown()">−</button>
+          <input class="qty-value" type="number" id="modal-qty" value="1" min="1" max="99">
+          <button class="qty-btn" onclick="document.getElementById('modal-qty').stepUp()">+</button>
+        </div>
+      </div>
+      <button class="btn-primary" id="modal-add-btn" onclick="modalAddToCart()" style="width:100%;justify-content:center">
+        <span>Agregar al Carrito</span>
+      </button>
+      <div class="modal-details"><!-- filled by shop.js --></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ──────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">MUJER COBRA</div>
+      <p class="footer-tagline" data-i18n="footer_tagline">El Arte de Creer y Crear</p>
+      <div class="footer-social">
+        <a href="https://instagram.com/mujercobra" target="_blank">IG</a>
+        <a href="mailto:hola@mujercobra.cl">✉</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer_collections">Colecciones</h4>
+      <ul>
+        <li><a href="#" onclick="setFilter('joyeria')" data-i18n="footer_jewelry">Joyería</a></li>
+        <li><a href="#" onclick="setFilter('textil')" data-i18n="footer_textiles">Textil</a></li>
+        <li><a href="#" onclick="setFilter('cuadros')" data-i18n="footer_paintings">Cuadros</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer_info">Información</h4>
+      <ul>
+        <li><a href="index.html#legado" data-i18n="footer_about">Historia</a></li>
+        <li><a href="cart.html" data-i18n="nav_cart">Carrito</a></li>
+        <li><a href="inventory.html" data-i18n="nav_inventory">Inventario</a></li>
+        <li><a href="index.html#contacto" data-i18n="footer_contact">Contacto</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer_legal">Legal</h4>
+      <ul>
+        <li><a href="#" data-i18n="footer_privacy">Privacidad</a></li>
+        <li><a href="#" data-i18n="footer_terms">Términos</a></li>
+        <li><a href="#" data-i18n="footer_shipping">Envíos</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span data-i18n="footer_copy">© 2026 Mujer Cobra</span>
+    <em data-i18n="footer_tagline">El Arte de Creer y Crear</em>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/shop.js"></script>
+<script>
+  // Handle ?filter= URL param
+  document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const f = params.get('filter');
+    if (f) {
+      activeFilter = f;
+      document.querySelectorAll('.filter-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === f);
+      });
+      renderGrid();
+    }
+  });
+  function setFilter(f) {
+    activeFilter = f;
+    document.querySelectorAll('.filter-tab').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.filter === f);
+    });
+    renderGrid();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return false;
+  }
+</script>
+</body>
+</html>

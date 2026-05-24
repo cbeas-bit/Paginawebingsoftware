@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventario Revalorizado — Mujer Cobra</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/inventory.css">
+</head>
+<body>
+
+<!-- ── NAV ─────────────────────────────────────────────────── -->
+<nav class="nav scrolled" id="main-nav">
+  <a href="index.html" class="nav-logo">MUJER COBRA</a>
+  <ul class="nav-links">
+    <li><a href="shop.html" data-i18n="nav_shop">Tienda</a></li>
+    <li><a href="cart.html" data-i18n="nav_cart">Carrito</a></li>
+    <li><a href="inventory.html" class="active" data-i18n="nav_inventory">Inventario</a></li>
+    <li>
+      <div class="lang-toggle">
+        <button class="lang-btn active" data-lang="es">ES</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </li>
+    <li>
+      <a href="cart.html" class="nav-cart">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span class="cart-count" style="display:none">0</span>
+      </a>
+    </li>
+  </ul>
+  <button class="nav-hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ── PAGE HEADER ─────────────────────────────────────────── -->
+<div class="page-header">
+  <div class="kintsugi-bg"></div>
+  <div class="page-header-content reveal">
+    <h1>Inventario <em>Revalorizado</em></h1>
+    <p>Corrección monetaria por IPC · UF · Precios actualizados al valor real</p>
+  </div>
+</div>
+
+<!-- ── UF INDICATOR ────────────────────────────────────────── -->
+<div style="padding:32px 60px 0">
+  <div class="uf-indicator reveal">
+    <div>
+      <div class="uf-label">Valor UF Hoy (CMF Chile)</div>
+      <div class="uf-value">$ 38.247,33</div>
+    </div>
+    <div>
+      <div class="uf-label">IPC Acumulado (INE)</div>
+      <div class="uf-value" style="font-size:1.2rem">3,2%</div>
+    </div>
+    <div>
+      <div class="uf-label">Fecha Base Inventario</div>
+      <div class="uf-date">01 Enero 2025</div>
+    </div>
+    <div>
+      <div class="uf-label">USD/CLP Referencial (BCCh)</div>
+      <div class="uf-date" style="font-size:0.95rem">$ 920</div>
+    </div>
+    <div class="uf-ipc">Fuente: mindicador.cl / INE Chile</div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD STATS ─────────────────────────────────────── -->
+<div class="inv-dashboard" id="inv-dashboard">
+  <!-- Rendered by inventory.js -->
+</div>
+
+<!-- ── INVENTORY TABLE ─────────────────────────────────────── -->
+<div class="inv-section reveal">
+  <div class="inv-section-title">
+    Inventario Revalorizado
+    <span class="badge-info">IPC + UF</span>
+  </div>
+  <div class="inv-table-wrap">
+    <table class="inv-table">
+      <thead>
+        <tr>
+          <th>Producto / Product</th>
+          <th class="right">Costo Base</th>
+          <th class="right">Costo Corregido <small style="opacity:0.5;font-size:0.6rem">(IPC)</small></th>
+          <th class="right">Precio Venta</th>
+          <th class="right">Ganancia Real</th>
+          <th class="right">Stock</th>
+          <th class="right">Estado</th>
+          <th class="right">Valor Total</th>
+          <th class="right">Acc.</th>
+        </tr>
+      </thead>
+      <tbody id="inv-tbody">
+        <tr><td colspan="9" style="text-align:center;padding:40px;color:rgba(245,237,224,0.3)">Cargando…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── MONETARY CORRECTION EXPLAINER ──────────────────────── -->
+<div class="inv-section reveal" id="cm-explainer-wrap">
+  <div class="inv-section-title">
+    Corrección Monetaria — Metodología
+    <span class="badge-info">IPC · UF · CMF</span>
+  </div>
+  <div id="cm-explainer">
+    <!-- Rendered by inventory.js -->
+  </div>
+</div>
+
+<!-- ── ADD PRODUCT ─────────────────────────────────────────── -->
+<div class="inv-section reveal">
+  <div class="inv-section-title">Agregar Producto / Add Product</div>
+  <div id="inv-add-form">
+    <!-- Rendered by inventory.js -->
+  </div>
+</div>
+
+<!-- spacer -->
+<div style="height:60px"></div>
+
+<!-- ── FOOTER ──────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-bottom" style="padding:28px 60px">
+    <span data-i18n="footer_copy">© 2026 Mujer Cobra</span>
+    <em data-i18n="footer_tagline">El Arte de Creer y Crear</em>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/inventory.js"></script>
+</body>
+</html>
