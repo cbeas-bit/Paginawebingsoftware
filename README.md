@@ -24,7 +24,7 @@ mujercobra/
 │   └── inventory.js    ← Corrección monetaria (IPC + UF), tabla, formulario
 │
 └── img/                ← Aquí van las fotos de los productos
-    └── (tus fotos aquí)
+    └── (fotos)
 ```
 
 ---
