@@ -83,12 +83,6 @@ body::before {
     linear-gradient(135deg, var(--petrol-abyss) 0%, var(--petrol-deep) 35%, var(--petrol) 70%, var(--petrol-abyss) 100%);
   z-index:0;
 }
-.kintsugi-bg::before {
-  content:''; position:absolute; inset:0; pointer-events:none;
-  opacity:0.50;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1400 900' preserveAspectRatio='xMidYMid slice'><defs><linearGradient id='gold' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23f9d9a6'/><stop offset='0.4' stop-color='%23e8b878'/><stop offset='0.7' stop-color='%23c97a4b'/><stop offset='1' stop-color='%23b8864e'/></linearGradient><filter id='glow'><feGaussianBlur stdDeviation='1.5' result='coloredBlur'/><feMerge><feMergeNode in='coloredBlur'/><feMergeNode in='SourceGraphic'/></feMerge></filter></defs><g fill='none' stroke='url(%23gold)' filter='url(%23glow)'><path d='M-20 180 C 180 120, 320 240, 480 200 S 720 100, 900 180 S 1200 300, 1440 220' stroke-width='1.8' opacity='0.9'/><path d='M-20 440 C 220 380, 380 500, 580 480 S 820 340, 1020 420 S 1300 560, 1440 500' stroke-width='1.4' opacity='0.75'/><path d='M-20 680 C 160 640, 340 740, 520 700 S 800 620, 1000 680 S 1260 780, 1440 720' stroke-width='1.2' opacity='0.65'/><path d='M740 -20 C 760 180, 700 340, 780 520 S 840 740, 800 920' stroke-width='1.5' opacity='0.8'/></g></svg>");
-  background-size:cover;
-}
 
 /* ── Navigation ────────────────────────────────────────────── */
 .nav {
