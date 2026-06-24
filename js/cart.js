@@ -185,13 +185,107 @@ function renderCart() {
 
 function handleCheckout(e) {
   e.preventDefault();
-  const lang = window.MC?.lang || 'es';
-  const isEn = lang === 'en';
-  // En producción, aquí se integraría Shopify / WebPay
-  window.MC?.showToast(
-    isEn ? 'Redirecting to Shopify checkout…' : 'Redirigiendo a pago Shopify…',
-    '🔒'
-  );
+  const isEn = window.MC?.lang === 'en';
+  // Mostrar modal de datos del cliente
+  mostrarModalCheckout(isEn);
+}
+
+/* ── Modal de checkout — datos del cliente ─────────────────── */
+function mostrarModalCheckout(isEn) {
+  // Remover modal previo si existe
+  const prevModal = document.getElementById('checkout-modal');
+  if (prevModal) prevModal.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'checkout-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML = `
+    <div style="background:#0b2a2b;border:1px solid rgba(201,122,75,0.3);padding:40px;max-width:480px;width:100%;position:relative;">
+      <button onclick="document.getElementById('checkout-modal').remove()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#e09065;font-size:1.5rem;cursor:pointer;">✕</button>
+      <h2 style="font-family:var(--font-display);color:#f3ece1;margin-bottom:24px;">${isEn ? 'Complete your order' : 'Completa tu pedido'}</h2>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <input id="co-nombre" type="text" placeholder="${isEn ? 'Full name *' : 'Nombre completo *'}" required
+          style="background:#103b3c;border:1px solid rgba(201,122,75,0.3);color:#f3ece1;padding:12px 16px;font-size:0.9rem;width:100%;box-sizing:border-box;">
+        <input id="co-email" type="email" placeholder="${isEn ? 'Email *' : 'Correo electrónico *'}" required
+          style="background:#103b3c;border:1px solid rgba(201,122,75,0.3);color:#f3ece1;padding:12px 16px;font-size:0.9rem;width:100%;box-sizing:border-box;">
+        <input id="co-fono" type="tel" placeholder="${isEn ? 'Phone (optional)' : 'Teléfono (opcional)'}"
+          style="background:#103b3c;border:1px solid rgba(201,122,75,0.3);color:#f3ece1;padding:12px 16px;font-size:0.9rem;width:100%;box-sizing:border-box;">
+        <textarea id="co-notas" placeholder="${isEn ? 'Notes (optional)' : 'Notas (opcional)'}" rows="2"
+          style="background:#103b3c;border:1px solid rgba(201,122,75,0.3);color:#f3ece1;padding:12px 16px;font-size:0.9rem;width:100%;box-sizing:border-box;resize:vertical;"></textarea>
+      </div>
+      <p id="co-error" style="color:#e09065;font-size:0.8rem;margin-top:10px;display:none;"></p>
+      <button id="co-btn" onclick="procesarCheckout()" style="margin-top:20px;width:100%;background:#c97a4b;color:#0b2a2b;border:none;padding:14px;font-size:0.85rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;font-weight:bold;">
+        ${isEn ? 'Proceed to Payment' : 'Proceder al Pago'}
+      </button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function procesarCheckout() {
+  const isEn = window.MC?.lang === 'en';
+  const nombre = document.getElementById('co-nombre')?.value?.trim();
+  const email  = document.getElementById('co-email')?.value?.trim();
+  const fono   = document.getElementById('co-fono')?.value?.trim();
+  const notas  = document.getElementById('co-notas')?.value?.trim();
+  const errorEl = document.getElementById('co-error');
+  const btn     = document.getElementById('co-btn');
+
+  if (!nombre || !email) {
+    if (errorEl) { errorEl.textContent = isEn ? 'Name and email are required.' : 'Nombre y correo son obligatorios.'; errorEl.style.display = 'block'; }
+    return;
+  }
+
+  if (btn) { btn.disabled = true; btn.textContent = isEn ? 'Processing…' : 'Procesando…'; }
+
+  loadCart();
+  const items = cart.map(i => ({
+    producto_id: i.supabase_id || i.id,
+    nombre:      i.name,
+    cantidad:    i.qty,
+    precio_clp:  i.price_clp,
+    precio_usd:  i.price_usd || 0,
+  }));
+  const { subtotal, total } = calcTotals();
+
+  try {
+    const { data: pedido, error } = await supabaseClient
+      .from('pedidos')
+      .insert({
+        cliente_nombre: nombre,
+        cliente_email:  email,
+        cliente_fono:   fono || null,
+        cliente_notas:  notas || null,
+        items:          items,
+        moneda:         'CLP',
+        total:          total,
+        estado:         'pendiente',
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    clearCart();
+    document.getElementById('checkout-modal')?.remove();
+    window.MC?.showToast(
+      isEn ? `Order ${pedido.codigo} created! Redirecting to payment…` : `Pedido ${pedido.codigo} creado. Redirigiendo al pago…`,
+      '✅'
+    );
+
+    // TODO: cuando tengan el Worker de Mercado Pago desplegado,
+    // reemplazar este alert por la llamada al Worker y redirección.
+    setTimeout(() => {
+      alert(isEn
+        ? `Your order ${pedido.codigo} has been registered.\nWe will contact you at ${email} to complete the payment.`
+        : `Tu pedido ${pedido.codigo} fue registrado.\nTe contactaremos a ${email} para completar el pago.`
+      );
+    }, 500);
+
+  } catch (err) {
+    console.error('Error creando pedido:', err);
+    if (errorEl) { errorEl.textContent = isEn ? 'Error processing order. Please try again.' : 'Error al procesar el pedido. Intenta de nuevo.'; errorEl.style.display = 'block'; }
+    if (btn) { btn.disabled = false; btn.textContent = isEn ? 'Proceed to Payment' : 'Proceder al Pago'; }
+  }
 }
 
 /* ── Init ──────────────────────────────────────────────────── */
