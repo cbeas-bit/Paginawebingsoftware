@@ -18,6 +18,7 @@
     <li><a href="shop.html" class="active" data-i18n="nav_shop">Tienda</a></li>
     <li><a href="index.html#legado" data-i18n="nav_legacy">Legado</a></li>
     <li><a href="index.html#contacto" data-i18n="nav_contact">Contacto</a></li>
+    <li><a href="correccion-monetaria/index.html" data-i18n="nav_inventory">Inventario</a></li>
     <li>
       <div class="lang-toggle">
         <button class="lang-btn active" data-lang="es">ES</button>
@@ -46,22 +47,22 @@
   <div class="kintsugi-bg"></div>
   <div class="page-header-content reveal">
     <h1><em data-i18n="nav_shop">Tienda</em></h1>
-    <p>Joyería · Textil · Cuadros · Hecho a mano en Chile</p>
+    <p data-i18n="shop_subtitle">Joyería · Textil · Cuadros · Hecho a mano en Chile</p>
   </div>
 </div>
 
 <!-- ── FILTER BAR ──────────────────────────────────────────── -->
 <div class="shop-controls">
   <div class="filter-tabs" id="filter-tabs">
-    <button class="filter-tab active" data-filter="all" id="tab-all">Todo / All</button>
-    <button class="filter-tab" data-filter="joyeria" id="tab-joyeria">Joyería</button>
-    <button class="filter-tab" data-filter="textil" id="tab-textil">Textil</button>
-    <button class="filter-tab" data-filter="cuadros" id="tab-cuadros">Cuadros / Paintings</button>
+    <button class="filter-tab active" data-filter="all" id="tab-all" data-i18n="filter_all">Todo</button>
+    <button class="filter-tab" data-filter="joyeria" id="tab-joyeria" data-i18n="filter_jewelry">Joyería</button>
+    <button class="filter-tab" data-filter="textil" id="tab-textil" data-i18n="filter_textile">Textil</button>
+    <button class="filter-tab" data-filter="cuadros" id="tab-cuadros" data-i18n="filter_paintings">Cuadros</button>
   </div>
   <select class="sort-select" id="sort-select">
-    <option value="default">Ordenar / Sort</option>
-    <option value="price-asc">Precio: menor a mayor / Price: low to high</option>
-    <option value="price-desc">Precio: mayor a menor / Price: high to low</option>
+    <option value="default" data-i18n="sort_default">Ordenar</option>
+    <option value="price-asc" data-i18n="sort_price_asc">Precio: menor a mayor</option>
+    <option value="price-desc" data-i18n="sort_price_desc">Precio: mayor a menor</option>
     <option value="name">A → Z</option>
   </select>
 </div>
@@ -71,7 +72,7 @@
   <div class="products-grid" id="products-grid">
     <!-- Rendered by shop.js -->
     <div style="grid-column:1/-1;padding:60px;text-align:center;color:rgba(245,237,224,0.4)">
-      Cargando productos…
+      <span data-i18n="loading_products">Cargando productos…</span>
     </div>
   </div>
 </section>
@@ -90,7 +91,7 @@
         <div class="modal-price-sub"></div>
       </div>
       <div class="modal-qty">
-        <label>Qty</label>
+        <label data-i18n="qty_label">Cant.</label>
         <div class="qty-control">
           <button class="qty-btn" onclick="document.getElementById('modal-qty').stepDown()">−</button>
           <input class="qty-value" type="number" id="modal-qty" value="1" min="1" max="99">
@@ -98,7 +99,7 @@
         </div>
       </div>
       <button class="btn-primary" id="modal-add-btn" onclick="modalAddToCart()" style="width:100%;justify-content:center">
-        <span>Agregar al Carrito</span>
+        <span data-i18n="cart_add">Agregar al Carrito</span>
       </button>
       <div class="modal-details"><!-- filled by shop.js --></div>
     </div>
@@ -129,7 +130,7 @@
       <ul>
         <li><a href="index.html#legado" data-i18n="footer_about">Historia</a></li>
         <li><a href="cart.html" data-i18n="nav_cart">Carrito</a></li>
-        <li><a href="inventory.html" data-i18n="nav_inventory">Inventario</a></li>
+        <li><a href="correccion-monetaria/index.html" data-i18n="nav_inventory">Inventario</a></li>
         <li><a href="index.html#contacto" data-i18n="footer_contact">Contacto</a></li>
       </ul>
     </div>
