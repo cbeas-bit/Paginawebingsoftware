@@ -867,17 +867,42 @@ async function subirFoto(file) {
   texto.textContent = 'Subiendo imagen…';
 
   // Nombre único para evitar sobreescribir
-  const ext      = file.name.split('.').pop().toLowerCase();
-  const nombre   = 'prod_' + Date.now() + '.' + ext;
+  const ext    = file.name.split('.').pop().toLowerCase();
+  const nombre = 'prod_' + Date.now() + '.' + ext;
 
   try {
     barra.style.width = '60%';
 
-    const { data, error } = await supabaseClient.storage
-      .from('Productos')
-      .upload(nombre, file, { upsert: true, contentType: file.type });
+    // Obtener sesión activa y pasar el token al cliente
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const token = sessionData?.session?.access_token;
 
-    if (error) throw error;
+    if (!token) {
+      throw new Error('No hay sesión activa. Por favor cierra sesión y vuelve a ingresar.');
+    }
+
+    // Subir usando fetch directo con el token de sesión
+    const formData = new FormData();
+    formData.append('', file, nombre);
+
+    const uploadRes = await fetch(
+      `${SUPABASE_URL}/storage/v1/object/Productos/${nombre}`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'apikey': SUPABASE_ANON_KEY,
+          'x-upsert': 'true',
+        },
+        body: file,
+      }
+    );
+
+    if (!uploadRes.ok) {
+      const errBody = await uploadRes.text();
+      console.error('Error upload:', errBody);
+      throw new Error('Error al subir la foto: ' + uploadRes.status);
+    }
 
     barra.style.width = '100%';
     texto.textContent = '✓ Foto subida correctamente';
