@@ -487,10 +487,23 @@
         <input type="number" id="prod-stock" placeholder="1" min="0">
       </div>
       <div class="form-field full">
-        <label>URL de imagen</label>
-        <input type="text" id="prod-imagen-url" placeholder="https://mujercobra.cl/img/foto.jpg" oninput="previsualizarImagen()">
-        <img class="img-preview" id="img-preview-el" alt="Preview">
-        <div class="img-hint">Sube la foto a la carpeta /img del proyecto y pega aquí la URL completa.</div>
+        <label>Foto del producto</label>
+        <div id="upload-zone" style="border:2px dashed var(--border);padding:24px;text-align:center;cursor:pointer;transition:border-color 0.3s;position:relative;" onclick="document.getElementById('file-input').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+          <input type="file" id="file-input" accept="image/*" style="display:none" onchange="subirFoto(this.files[0])">
+          <div id="upload-estado">
+            <div style="font-size:2rem;margin-bottom:8px;">📸</div>
+            <div style="font-size:0.85rem;color:var(--copper-bright);">Haz clic para elegir una foto</div>
+            <div style="font-size:0.72rem;color:var(--ivory-dim);margin-top:4px;">o arrastra la imagen aquí · JPG, PNG, WEBP</div>
+          </div>
+        </div>
+        <div id="upload-progreso" style="display:none;margin-top:10px;">
+          <div style="height:3px;background:var(--petrol-light);position:relative;overflow:hidden;">
+            <div id="barra-progreso-upload" style="height:100%;background:var(--copper);width:0%;transition:width 0.3s;"></div>
+          </div>
+          <div id="upload-texto" style="font-size:0.75rem;color:var(--ivory-dim);margin-top:6px;text-align:center;">Subiendo…</div>
+        </div>
+        <img class="img-preview" id="img-preview-el" alt="Preview" style="margin-top:10px;">
+        <input type="hidden" id="prod-imagen-url">
       </div>
       <div class="form-field">
         <label>Destacado</label>
@@ -815,7 +828,94 @@ async function eliminarProducto(id) {
   mostrarToast('Producto eliminado');
 }
 
-/* ── CORRECCIÓN MONETARIA ── */
+/* ── SUBIDA DE FOTO ── */
+function dragOver(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').style.borderColor = 'var(--copper)';
+}
+function dragLeave(e) {
+  document.getElementById('upload-zone').style.borderColor = 'var(--border)';
+}
+function dropFile(e) {
+  e.preventDefault();
+  dragLeave(e);
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) subirFoto(file);
+}
+
+async function subirFoto(file) {
+  if (!file) return;
+
+  // Validar tamaño (máx 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    mostrarToast('La foto no puede superar 5MB');
+    return;
+  }
+
+  // Mostrar progreso
+  const progreso = document.getElementById('upload-progreso');
+  const barra    = document.getElementById('barra-progreso-upload');
+  const texto    = document.getElementById('upload-texto');
+  const estado   = document.getElementById('upload-estado');
+  const zone     = document.getElementById('upload-zone');
+  const prev     = document.getElementById('img-preview-el');
+
+  progreso.style.display = 'block';
+  estado.style.opacity   = '0.4';
+  zone.style.pointerEvents = 'none';
+  barra.style.width = '30%';
+  texto.textContent = 'Subiendo imagen…';
+
+  // Nombre único para evitar sobreescribir
+  const ext      = file.name.split('.').pop().toLowerCase();
+  const nombre   = 'prod_' + Date.now() + '.' + ext;
+
+  try {
+    barra.style.width = '60%';
+
+    const { data, error } = await supabaseClient.storage
+      .from('Productos')
+      .upload(nombre, file, { upsert: true, contentType: file.type });
+
+    if (error) throw error;
+
+    barra.style.width = '100%';
+    texto.textContent = '✓ Foto subida correctamente';
+
+    // Obtener URL pública
+    const { data: urlData } = supabaseClient.storage
+      .from('Productos')
+      .getPublicUrl(nombre);
+
+    const url = urlData.publicUrl;
+    document.getElementById('prod-imagen-url').value = url;
+
+    // Mostrar preview
+    prev.src = url;
+    prev.style.display = 'block';
+
+    // Actualizar zona de upload
+    estado.innerHTML = `
+      <div style="font-size:1.5rem;margin-bottom:6px;">✅</div>
+      <div style="font-size:0.82rem;color:var(--copper-bright);">${file.name}</div>
+      <div style="font-size:0.7rem;color:var(--ivory-dim);margin-top:4px;">Haz clic para cambiar la foto</div>`;
+    estado.style.opacity = '1';
+
+    setTimeout(() => { progreso.style.display = 'none'; }, 1500);
+
+  } catch (err) {
+    console.error('Error subiendo foto:', err);
+    barra.style.width = '0%';
+    texto.textContent = 'Error al subir la foto. Intenta de nuevo.';
+    texto.style.color = '#e74c3c';
+    estado.style.opacity = '1';
+    mostrarToast('Error al subir la foto');
+  } finally {
+    zone.style.pointerEvents = 'auto';
+  }
+}
+
+function previsualizarImagen() {}
 function calcularIPC() {
   const costo    = Number(document.getElementById('ipc-costo').value) || 10000;
   const anioBase = Number(document.getElementById('ipc-anio-base').value) || 2025;
