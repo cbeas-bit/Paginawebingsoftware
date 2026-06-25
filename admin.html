@@ -760,11 +760,7 @@ function cerrarModal() {
   document.getElementById('modal-producto').classList.remove('open');
 }
 
-function previsualizarImagen() {
-  const url = document.getElementById('prod-imagen-url').value.trim();
-  const prev = document.getElementById('img-preview-el');
-  if (url) { prev.src = url; prev.style.display = 'block'; } else { prev.style.display = 'none'; }
-}
+function previsualizarImagen() {}
 
 async function guardarProducto() {
   const id       = document.getElementById('prod-id').value;
@@ -846,13 +842,11 @@ function dropFile(e) {
 async function subirFoto(file) {
   if (!file) return;
 
-  // Validar tamaño (máx 5MB)
   if (file.size > 5 * 1024 * 1024) {
     mostrarToast('La foto no puede superar 5MB');
     return;
   }
 
-  // Mostrar progreso
   const progreso = document.getElementById('upload-progreso');
   const barra    = document.getElementById('barra-progreso-upload');
   const texto    = document.getElementById('upload-texto');
@@ -866,63 +860,61 @@ async function subirFoto(file) {
   barra.style.width = '30%';
   texto.textContent = 'Subiendo imagen…';
 
-  // Nombre único para evitar sobreescribir
   const ext    = file.name.split('.').pop().toLowerCase();
   const nombre = 'prod_' + Date.now() + '.' + ext;
 
   try {
     barra.style.width = '60%';
 
-    // Obtener sesión activa y pasar el token al cliente
-    const { data: sessionData } = await supabaseClient.auth.getSession();
-    const token = sessionData?.session?.access_token;
+    // Convertir archivo a base64
+    const fileBase64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload  = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
 
-    if (!token) {
-      throw new Error('No hay sesión activa. Por favor cierra sesión y vuelve a ingresar.');
-    }
+    // Llamar a la Netlify Function (la clave secreta vive ahí)
+    const res = await fetch('/.netlify/functions/upload-foto', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileName:   nombre,
+        fileBase64: fileBase64,
+        fileType:   file.type,
+      }),
+    });
 
-    // Subir usando fetch directo con el token de sesión
-    const formData = new FormData();
-    formData.append('', file, nombre);
+    const data = await res.json();
 
-    const uploadRes = await fetch(
-      `${SUPABASE_URL}/storage/v1/object/Productos/${nombre}`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'apikey': SUPABASE_ANON_KEY,
-          'x-upsert': 'true',
-        },
-        body: file,
-      }
-    );
-
-    if (!uploadRes.ok) {
-      const errBody = await uploadRes.text();
-      console.error('Error upload:', errBody);
-      throw new Error('Error al subir la foto: ' + uploadRes.status);
-    }
+    if (!res.ok) throw new Error(data.error || 'Error al subir la foto');
 
     barra.style.width = '100%';
     texto.textContent = '✓ Foto subida correctamente';
 
-    // Obtener URL pública
-    const { data: urlData } = supabaseClient.storage
-      .from('Productos')
-      .getPublicUrl(nombre);
-
-    const url = urlData.publicUrl;
-    document.getElementById('prod-imagen-url').value = url;
-
-    // Mostrar preview
-    prev.src = url;
+    document.getElementById('prod-imagen-url').value = data.url;
+    prev.src = data.url;
     prev.style.display = 'block';
 
-    // Actualizar zona de upload
     estado.innerHTML = `
       <div style="font-size:1.5rem;margin-bottom:6px;">✅</div>
       <div style="font-size:0.82rem;color:var(--copper-bright);">${file.name}</div>
+      <div style="font-size:0.7rem;color:var(--ivory-dim);margin-top:4px;">Haz clic para cambiar la foto</div>`;
+    estado.style.opacity = '1';
+
+    setTimeout(() => { progreso.style.display = 'none'; }, 1500);
+
+  } catch (err) {
+    console.error('Error subiendo foto:', err);
+    barra.style.width = '0%';
+    texto.textContent = 'Error al subir la foto. Intenta de nuevo.';
+    texto.style.color = '#e74c3c';
+    estado.style.opacity = '1';
+    mostrarToast('Error al subir la foto');
+  } finally {
+    zone.style.pointerEvents = 'auto';
+  }
+}
       <div style="font-size:0.7rem;color:var(--ivory-dim);margin-top:4px;">Haz clic para cambiar la foto</div>`;
     estado.style.opacity = '1';
 
