@@ -287,6 +287,9 @@
         <div class="nav-item" onclick="irA('pedidos')">
           <span class="nav-icon">📦</span> Pedidos
         </div>
+        <div class="nav-item" onclick="irA('categorias')">
+          <span class="nav-icon">🏷️</span> Categorías
+        </div>
         <div class="nav-item" onclick="irA('monetario')">
           <span class="nav-icon">📈</span> Corrección Monetaria
         </div>
@@ -360,6 +363,24 @@
               <tr><th>Código</th><th>Cliente</th><th>Email</th><th>Total</th><th>Estado</th><th>Fecha</th><th>Acción</th></tr>
             </thead>
             <tbody id="tabla-pedidos"><tr><td colspan="7" style="color:var(--ivory-dim);text-align:center;padding:20px;">Cargando…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CATEGORÍAS -->
+      <div class="section" id="sec-categorias">
+        <div class="page-title">Gestión de <em>Categorías</em></div>
+        <div class="page-sub">Agrega, edita o desactiva las categorías que aparecen en la tienda</div>
+        <div class="table-header">
+          <h3>Categorías actuales</h3>
+          <button class="btn-add" onclick="abrirModalCategoria()">+ Agregar categoría</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Nombre ES</th><th>Nombre EN</th><th>Orden</th><th>Estado</th><th>Acciones</th></tr>
+            </thead>
+            <tbody id="tabla-categorias"><tr><td colspan="5" style="color:var(--ivory-dim);text-align:center;padding:20px;">Cargando…</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -444,6 +465,45 @@
       </div>
 
     </main>
+  </div>
+</div>
+
+<!-- ── MODAL CATEGORÍA ────────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-categoria">
+  <div class="modal-box" style="max-width:440px;">
+    <button class="modal-close" onclick="cerrarModalCategoria()">✕</button>
+    <div class="modal-title" id="modal-cat-titulo">Nueva categoría</div>
+    <input type="hidden" id="cat-id">
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Nombre en español *</label>
+        <input type="text" id="cat-nombre-es" placeholder="Ej: Collares">
+      </div>
+      <div class="form-field">
+        <label>Nombre en inglés</label>
+        <input type="text" id="cat-nombre-en" placeholder="Ej: Necklaces">
+      </div>
+      <div class="form-field">
+        <label>Slug (URL) *</label>
+        <input type="text" id="cat-slug" placeholder="Ej: collares">
+      </div>
+      <div class="form-field">
+        <label>Orden en menú</label>
+        <input type="number" id="cat-orden" value="1" min="1">
+      </div>
+      <div class="form-field">
+        <label>Estado</label>
+        <select id="cat-activa">
+          <option value="true">Activa (visible)</option>
+          <option value="false">Inactiva (oculta)</option>
+        </select>
+      </div>
+    </div>
+    <div id="modal-cat-error" style="color:#e74c3c;font-size:0.8rem;margin-top:12px;display:none;"></div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="cerrarModalCategoria()">Cancelar</button>
+      <button class="btn-primary" style="max-width:160px;" id="btn-guardar-cat" onclick="guardarCategoria()">Guardar</button>
+    </div>
   </div>
 </div>
 
@@ -592,6 +652,7 @@ function irA(seccion) {
 async function cargarTodo() {
   await Promise.all([cargarCategorias(), cargarProductos(), cargarPedidos()]);
   actualizarStats();
+  renderTablaCategorias();
   calcularIPC();
 }
 
@@ -915,8 +976,132 @@ async function subirFoto(file) {
     zone.style.pointerEvents = 'auto';
   }
 }
+      <div style="font-size:0.7rem;color:var(--ivory-dim);margin-top:4px;">Haz clic para cambiar la foto</div>`;
+    estado.style.opacity = '1';
+
+    setTimeout(() => { progreso.style.display = 'none'; }, 1500);
+
+  } catch (err) {
+    console.error('Error subiendo foto:', err);
+    barra.style.width = '0%';
+    texto.textContent = 'Error al subir la foto. Intenta de nuevo.';
+    texto.style.color = '#e74c3c';
+    estado.style.opacity = '1';
+    mostrarToast('Error al subir la foto');
+  } finally {
+    zone.style.pointerEvents = 'auto';
+  }
+}
 
 function previsualizarImagen() {}
+
+/* ── CATEGORÍAS ── */
+function renderTablaCategorias() {
+  const tbody = document.getElementById('tabla-categorias');
+  if (!tbody) return;
+  if (CATEGORIAS.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="color:var(--ivory-dim);text-align:center;padding:20px;">Sin categorías aún</td></tr>';
+    return;
+  }
+  tbody.innerHTML = CATEGORIAS.map(c => `<tr>
+    <td>${c.nombre_es}</td>
+    <td style="color:var(--ivory-dim)">${c.nombre_en || '—'}</td>
+    <td>${c.orden}</td>
+    <td><span class="badge ${c.activa ? 'badge-on' : 'badge-off'}">${c.activa ? 'Activa' : 'Inactiva'}</span></td>
+    <td>
+      <button class="btn-edit" onclick="editarCategoria(${c.id})">Editar</button>
+      <button class="btn-delete" onclick="eliminarCategoria(${c.id})">Eliminar</button>
+    </td>
+  </tr>`).join('');
+}
+
+function abrirModalCategoria() {
+  document.getElementById('cat-id').value = '';
+  document.getElementById('modal-cat-titulo').textContent = 'Nueva categoría';
+  document.getElementById('cat-nombre-es').value = '';
+  document.getElementById('cat-nombre-en').value = '';
+  document.getElementById('cat-slug').value = '';
+  document.getElementById('cat-orden').value = CATEGORIAS.length + 1;
+  document.getElementById('cat-activa').value = 'true';
+  document.getElementById('modal-cat-error').style.display = 'none';
+  document.getElementById('modal-categoria').classList.add('open');
+}
+
+function editarCategoria(id) {
+  const c = CATEGORIAS.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('cat-id').value = c.id;
+  document.getElementById('modal-cat-titulo').textContent = 'Editar categoría';
+  document.getElementById('cat-nombre-es').value = c.nombre_es || '';
+  document.getElementById('cat-nombre-en').value = c.nombre_en || '';
+  document.getElementById('cat-slug').value = c.slug || '';
+  document.getElementById('cat-orden').value = c.orden || 1;
+  document.getElementById('cat-activa').value = c.activa ? 'true' : 'false';
+  document.getElementById('modal-cat-error').style.display = 'none';
+  document.getElementById('modal-categoria').classList.add('open');
+}
+
+function cerrarModalCategoria() {
+  document.getElementById('modal-categoria').classList.remove('open');
+}
+
+async function guardarCategoria() {
+  const id       = document.getElementById('cat-id').value;
+  const nombreEs = document.getElementById('cat-nombre-es').value.trim();
+  const slug     = document.getElementById('cat-slug').value.trim().toLowerCase().replace(/\s+/g, '-');
+  const errEl    = document.getElementById('modal-cat-error');
+  const btn      = document.getElementById('btn-guardar-cat');
+
+  if (!nombreEs || !slug) {
+    errEl.textContent = 'Nombre en español y slug son obligatorios.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Guardando…';
+
+  const datos = {
+    nombre_es: nombreEs,
+    nombre_en: document.getElementById('cat-nombre-en').value.trim() || nombreEs,
+    slug:      slug,
+    orden:     Number(document.getElementById('cat-orden').value) || 1,
+    activa:    document.getElementById('cat-activa').value === 'true',
+  };
+
+  let error;
+  if (id) {
+    ({ error } = await supabaseClient.from('categorias').update(datos).eq('id', id));
+  } else {
+    ({ error } = await supabaseClient.from('categorias').insert(datos));
+  }
+
+  btn.disabled = false; btn.textContent = 'Guardar';
+
+  if (error) {
+    errEl.textContent = 'Error al guardar: ' + error.message;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  cerrarModalCategoria();
+  await cargarCategorias();
+  renderTablaCategorias();
+  // Actualizar el select de categorías en el modal de producto
+  const sel = document.getElementById('prod-categoria');
+  if (sel) sel.innerHTML = CATEGORIAS.map(c => `<option value="${c.id}">${c.nombre_es}</option>`).join('');
+  mostrarToast(id ? 'Categoría actualizada ✓' : 'Categoría agregada ✓');
+}
+
+async function eliminarCategoria(id) {
+  const c = CATEGORIAS.find(x => x.id === id);
+  if (!confirm(`¿Eliminar la categoría "${c?.nombre_es}"? Los productos quedarán sin categoría.`)) return;
+  const { error } = await supabaseClient.from('categorias').delete().eq('id', id);
+  if (error) { mostrarToast('Error al eliminar'); return; }
+  await cargarCategorias();
+  renderTablaCategorias();
+  mostrarToast('Categoría eliminada');
+}
+
 function calcularIPC() {
   const costo    = Number(document.getElementById('ipc-costo').value) || 10000;
   const anioBase = Number(document.getElementById('ipc-anio-base').value) || 2025;
