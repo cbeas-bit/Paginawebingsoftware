@@ -915,22 +915,6 @@ async function subirFoto(file) {
     zone.style.pointerEvents = 'auto';
   }
 }
-      <div style="font-size:0.7rem;color:var(--ivory-dim);margin-top:4px;">Haz clic para cambiar la foto</div>`;
-    estado.style.opacity = '1';
-
-    setTimeout(() => { progreso.style.display = 'none'; }, 1500);
-
-  } catch (err) {
-    console.error('Error subiendo foto:', err);
-    barra.style.width = '0%';
-    texto.textContent = 'Error al subir la foto. Intenta de nuevo.';
-    texto.style.color = '#e74c3c';
-    estado.style.opacity = '1';
-    mostrarToast('Error al subir la foto');
-  } finally {
-    zone.style.pointerEvents = 'auto';
-  }
-}
 
 function previsualizarImagen() {}
 function calcularIPC() {
