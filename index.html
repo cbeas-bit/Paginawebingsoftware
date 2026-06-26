@@ -604,82 +604,17 @@
   <div class="carrusel-externo">
     <div class="carrusel-ventana">
       <div class="carrusel-pista" id="carrusel-pista">
-
-        <div class="producto-card" data-indice="0">
-          <div class="producto-imagen" style="background-color:#3d1f0a;">
-            <div class="producto-placeholder">
-              <span class="producto-placeholder-icono">🪙</span>
-              <p class="producto-placeholder-texto" data-i18n="product_photo_jewelry">Foto del producto<br>Joyería en Cobre</p>
-            </div>
+        <!-- Los productos destacados se cargan desde Supabase -->
+        <div class="producto-card" style="opacity:0.4;pointer-events:none;">
+          <div class="producto-imagen" style="background-color:#103b3c;display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:2rem;opacity:0.3;">🪙</span>
           </div>
           <div class="producto-info">
-            <p class="producto-categoria">Joyería</p>
-            <h3 class="producto-nombre">Aretes Cobra Doble</h3>
-            <p class="producto-precio">$28.000 CLP</p>
-            <a href="shop.html?filter=joyeria" class="producto-boton" data-i18n="product_view">Ver pieza</a>
+            <p class="producto-categoria">Cargando…</p>
+            <h3 class="producto-nombre">—</h3>
+            <p class="producto-precio">—</p>
           </div>
         </div>
-
-        <div class="producto-card" data-indice="1">
-          <div class="producto-imagen" style="background-color:#2a1508;">
-            <div class="producto-placeholder">
-              <span class="producto-placeholder-icono">🎨</span>
-              <p class="producto-placeholder-texto" data-i18n="product_photo_paintings">Foto del producto<br>Pinturas &amp; Cuadros</p>
-            </div>
-          </div>
-          <div class="producto-info">
-            <p class="producto-categoria">Pinturas &amp; Cuadros</p>
-            <h3 class="producto-nombre">Lienzo Kintsugi I</h3>
-            <p class="producto-precio">$85.000 CLP</p>
-            <a href="shop.html?filter=cuadros" class="producto-boton" data-i18n="product_view">Ver pieza</a>
-          </div>
-        </div>
-
-        <div class="producto-card" data-indice="2">
-          <div class="producto-imagen" style="background-color:#4a2210;">
-            <div class="producto-placeholder">
-              <span class="producto-placeholder-icono">👜</span>
-              <p class="producto-placeholder-texto" data-i18n="product_photo_textile">Foto del producto<br>Carteras de Lana</p>
-            </div>
-          </div>
-          <div class="producto-info">
-            <p class="producto-categoria">Textil</p>
-            <h3 class="producto-nombre">Cartera Wayra Natural</h3>
-            <p class="producto-precio">$42.000 CLP</p>
-            <a href="shop.html?filter=textil" class="producto-boton" data-i18n="product_view">Ver pieza</a>
-          </div>
-        </div>
-
-        <div class="producto-card" data-indice="3">
-          <div class="producto-imagen" style="background-color:#1a0d04;">
-            <div class="producto-placeholder">
-              <span class="producto-placeholder-icono">🪙</span>
-              <p class="producto-placeholder-texto" data-i18n="product_photo_jewelry">Foto del producto<br>Joyería en Cobre</p>
-            </div>
-          </div>
-          <div class="producto-info">
-            <p class="producto-categoria">Joyería</p>
-            <h3 class="producto-nombre">Pulsera Escama</h3>
-            <p class="producto-precio">$22.000 CLP</p>
-            <a href="shop.html?filter=joyeria" class="producto-boton" data-i18n="product_view">Ver pieza</a>
-          </div>
-        </div>
-
-        <div class="producto-card" data-indice="4">
-          <div class="producto-imagen" style="background-color:#3a1a08;">
-            <div class="producto-placeholder">
-              <span class="producto-placeholder-icono">🎨</span>
-              <p class="producto-placeholder-texto" data-i18n="product_photo_paintings">Foto del producto<br>Pinturas &amp; Cuadros</p>
-            </div>
-          </div>
-          <div class="producto-info">
-            <p class="producto-categoria">Pinturas &amp; Cuadros</p>
-            <h3 class="producto-nombre">Serie Cobre II</h3>
-            <p class="producto-precio">$110.000 CLP</p>
-            <a href="shop.html?filter=cuadros" class="producto-boton" data-i18n="product_view">Ver pieza</a>
-          </div>
-        </div>
-
       </div>
     </div>
 
@@ -813,8 +748,61 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
 <script>
-(function () {
+/* ── Cargar productos destacados desde Supabase ─────────── */
+(async function cargarDestacados() {
+  const pista = document.getElementById('carrusel-pista');
+  if (!pista) return;
+
+  try {
+    const { data: prods } = await supabaseClient
+      .from('productos')
+      .select('*, categorias(nombre_es, nombre_en)')
+      .eq('disponible', true)
+      .eq('destacado', true)
+      .order('creado_en', { ascending: false });
+
+    if (!prods || prods.length === 0) return;
+
+    const lang = document.documentElement.lang || 'es';
+    const isEn = lang === 'en';
+
+    pista.innerHTML = prods.map((p, i) => {
+      const nombre = isEn ? (p.nombre_en || p.nombre_es) : p.nombre_es;
+      const cat    = isEn
+        ? (p.categorias?.nombre_en || p.categorias?.nombre_es || '')
+        : (p.categorias?.nombre_es || '');
+      const precio = '$' + Number(p.precio_clp).toLocaleString('es-CL') + ' CLP';
+      const imgHtml = (p.imagenes && p.imagenes.length > 0)
+        ? `<img src="${p.imagenes[0]}" alt="${nombre}" style="width:100%;height:100%;object-fit:cover;display:block;">`
+        : `<div class="producto-placeholder">
+             <span class="producto-placeholder-icono">🪙</span>
+             <p class="producto-placeholder-texto">${cat}</p>
+           </div>`;
+
+      return `<div class="producto-card" data-indice="${i}">
+        <div class="producto-imagen">${imgHtml}</div>
+        <div class="producto-info">
+          <p class="producto-categoria">${cat}</p>
+          <h3 class="producto-nombre">${nombre}</h3>
+          <p class="producto-precio">${precio}</p>
+          <a href="shop.html" class="producto-boton">${isEn ? 'View piece' : 'Ver pieza'}</a>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Reiniciar el carrusel con los nuevos productos
+    iniciarCarrusel();
+
+  } catch (err) {
+    console.error('Error cargando destacados:', err);
+  }
+})();
+
+/* ── Carrusel ───────────────────────────────────────────── */
+function iniciarCarrusel() {
   var pista         = document.getElementById('carrusel-pista');
   var flechaIzq     = document.getElementById('flecha-izq');
   var flechaDer     = document.getElementById('flecha-der');
@@ -822,12 +810,14 @@
   var contadorEl    = document.getElementById('carrusel-contador');
   var ventana       = document.querySelector('.carrusel-ventana');
 
-  var DURACION  = 4000;
+  var DURACION   = 4000;
   var ANCHO_CARD = 300 + 28;
-  var indice    = 0;
-  var total     = pista.querySelectorAll('.producto-card').length;
-  var porVista  = 3;
-  var timer     = null;
+  var indice     = 0;
+  var total      = pista.querySelectorAll('.producto-card').length;
+  var porVista   = 3;
+  var timer      = null;
+
+  contadorEl.textContent = '1 / ' + total;
 
   function actualizarPorVista() {
     var w = ventana.offsetWidth;
@@ -871,29 +861,23 @@
     barraProgreso.style.transition = 'none';
     barraProgreso.style.width = w;
   });
-
-  pista.addEventListener('mouseleave', function () {
-    irA(indice);
-    iniciarAutoplay();
-  });
-
+  pista.addEventListener('mouseleave', function () { irA(indice); iniciarAutoplay(); });
   flechaIzq.addEventListener('click', function () { irA(indice - 1); iniciarAutoplay(); });
   flechaDer.addEventListener('click', function () { irA(indice + 1); iniciarAutoplay(); });
 
   var touchX = 0;
   pista.addEventListener('touchstart', function (e) { touchX = e.touches[0].clientX; }, { passive: true });
-  pista.addEventListener('touchend',   function (e) {
+  pista.addEventListener('touchend', function (e) {
     var d = e.changedTouches[0].clientX - touchX;
     if (d < -40) { irA(indice + 1); iniciarAutoplay(); }
     if (d >  40) { irA(indice - 1); iniciarAutoplay(); }
   });
 
   window.addEventListener('resize', function () { actualizarPorVista(); irA(indice); });
-
   actualizarPorVista();
   irA(0);
   iniciarAutoplay();
-})();
+}
 </script>
 <script src="js/main.js"></script>
 <script src="js/cart.js"></script>
