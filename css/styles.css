@@ -344,53 +344,48 @@ footer {
 
 /* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 900px) {
-  .nav { padding:20px 28px; }
-  .nav.scrolled { padding:14px 28px; }
+  /* La nav siempre por encima de todo en móvil */
+  .nav {
+    padding:18px 24px;
+    z-index:600; /* sube la nav entera */
+  }
+  .nav.scrolled { padding:14px 24px; }
 
-  /* Menú móvil: cubre TODA la pantalla incluyendo la nav */
+  /* Menú móvil: overlay debajo de la nav, cubre el resto */
   .nav-links {
     display:none; flex-direction:column;
-    position:fixed; inset:0;
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
     background:rgba(6,26,27,0.98);
     backdrop-filter:blur(20px);
     -webkit-backdrop-filter:blur(20px);
     justify-content:center; align-items:center;
-    gap:32px;
-    z-index:550; /* encima de la nav (500) y del hamburger (600 lo sobrepasa solo el botón) */
-    padding:80px 40px 40px; /* deja espacio arriba para el botón cerrar */
+    gap:28px;
+    z-index:590; /* debajo de la nav (600) */
+    padding:100px 40px 60px; /* espacio arriba para la nav */
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
   }
   .nav-links.open { display:flex; }
-  .nav-links a { font-size:1.15rem; letter-spacing:0.18em; }
+  .nav-links a { font-size:1.1rem; letter-spacing:0.18em; }
 
-  /* Hamburger siempre visible y por encima del overlay */
+  /* Hamburger visible, parte de la nav (hereda z-index:600) */
   .nav-hamburger {
     display:flex;
-    z-index:600;
-    position:relative;
+    position:relative; /* sin z-index propio, hereda de .nav */
   }
 
-  /* Animación hamburger → X cuando está abierto */
-  .nav-hamburger.open span:nth-child(1) {
-    transform: translateY(6px) rotate(45deg);
-  }
-  .nav-hamburger.open span:nth-child(2) {
-    opacity: 0;
-    transform: scaleX(0);
-  }
-  .nav-hamburger.open span:nth-child(3) {
-    transform: translateY(-6px) rotate(-45deg);
-  }
-  .nav-hamburger span { transition: all 0.3s ease; }
-
-  /* Cuando el menú está abierto, el logo también queda visible arriba */
-  .nav-links.open ~ .nav-logo,
-  .nav-logo { position:relative; z-index:600; }
+  /* Animación hamburger → X */
+  .nav-hamburger span { transition:all 0.3s ease; }
+  .nav-hamburger.open span:nth-child(1) { transform:translateY(6px) rotate(45deg); }
+  .nav-hamburger.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
+  .nav-hamburger.open span:nth-child(3) { transform:translateY(-6px) rotate(-45deg); }
 
   .page-header { padding:130px 28px 60px; }
   .footer-inner { grid-template-columns:1fr 1fr; gap:32px; }
 
   /* Lang toggle y carrito dentro del menú móvil */
-  .nav-links .lang-toggle { margin-top:8px; }
+  .nav-links .lang-toggle { margin-top:4px; }
   .nav-links .nav-cart { padding:10px 20px; }
 }
 

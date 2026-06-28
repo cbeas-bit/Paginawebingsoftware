@@ -480,28 +480,62 @@
 
     /* ── Responsive ─────────────────────────────────────── */
     @media (max-width:900px) {
-      .philosophy { padding:80px 28px; }
+      .philosophy { padding:72px 20px; }
       .philosophy-grid { grid-template-columns:1fr; gap:2px; }
-      .legado { padding:80px 28px; }
+      .pillar { padding:36px 24px; }
+      .legado { padding:72px 20px; }
       .legado-inner { grid-template-columns:1fr; gap:40px; }
       .legado-visual { display:none; }
-      .sustenta { padding:80px 28px; }
+      .sustenta { padding:72px 20px; }
       .sustenta-stats { grid-template-columns:1fr; gap:2px; }
-      .contacto { padding:80px 28px; }
-      .contacto-inner { grid-template-columns:1fr; gap:40px; }
+      .contacto { padding:72px 20px; }
+      .contacto-inner { grid-template-columns:1fr; gap:32px; }
+      /* Carrusel — padding lateral reducido en tablet */
+      .productos-cabecera { padding-left:20px; padding-right:20px; }
+      .carrusel-ventana { padding-left:20px; padding-right:20px; padding-bottom:20px; }
+      .carrusel-controles { padding-left:20px; padding-right:20px; }
     }
     @media (max-width:768px) {
+      /* Hero: logo arriba compacto, foto abajo */
       .hero {
         grid-template-columns: 1fr;
-        grid-template-rows: auto 60vw;
+        grid-template-rows: auto 68vw;
         height: auto;
+        min-height: 0; /* no forzar 100vh en móvil */
       }
-      .hero-panel-logo { padding:80px 32px 40px; }
-      .hero-panel-foto { min-height:60vw; }
+      .hero-panel-logo {
+        padding: 72px 24px 20px; /* top reducido: barra nav ~60px + margen */
+        min-height: auto;
+        gap: 0;
+      }
+      /* Logo más pequeño */
+      .hero-logo { max-width: 180px; }
+      .hero-logo-separador { margin: 10px auto; }
+      .hero-tagline {
+        font-size: 0.72rem;
+        margin-bottom: 16px;
+      }
+      .hero-cta { padding: 9px 20px; font-size:0.62rem; }
+      .hero-panel-foto { min-height:68vw; }
+
+      /* Scroll indicator */
+      .hero-scroll {
+        right: 50%;
+        transform: translateX(50%);
+      }
+
+      /* Carrusel móvil */
       .productos-cabecera,
       .carrusel-ventana,
-      .carrusel-controles { padding-left:24px; padding-right:24px; }
-      .producto-card { flex:0 0 260px; }
+      .carrusel-controles { padding-left:16px; padding-right:16px; }
+      .producto-card { flex:0 0 240px; }
+      .seccion-titulo { font-size:clamp(1.6rem,7vw,2.4rem); }
+    }
+    @media (max-width:480px) {
+      .producto-card { flex:0 0 82vw; }
+      .hero-panel-logo { padding: 68px 20px 16px; }
+      .hero-logo { max-width: 160px; }
+      .channel { flex-direction:column; align-items:flex-start; gap:4px; padding:16px 20px; }
     }
   </style>
 </head>
@@ -553,9 +587,28 @@
 
   <!-- Panel derecho: foto/video a pantalla completa (75% del ancho) -->
   <div class="hero-panel-foto">
-    <video autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;">
+    <video autoplay muted loop playsinline webkit-playsinline
+      x5-playsinline x5-video-player-type="h5"
+      preload="auto"
+      style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;pointer-events:none;">
       <source src="portada.webm" type="video/webm">
+      <source src="portada.webp" type="image/webp">
     </video>
+    <script>
+    /* Forzar autoplay en iOS/Android si el navegador lo pausó */
+    (function() {
+      var v = document.currentScript.previousElementSibling;
+      while (v && v.tagName !== 'VIDEO') v = v.previousElementSibling;
+      if (!v) return;
+      function tryPlay() {
+        var p = v.play();
+        if (p && p.catch) p.catch(function(){});
+      }
+      v.addEventListener('canplay', tryPlay, { once: true });
+      document.addEventListener('touchstart', function() { tryPlay(); }, { once: true, passive: true });
+      tryPlay();
+    })();
+    </script>
     <!-- Indicador de scroll -->
     <div class="hero-scroll">
       <span class="hero-scroll-texto" data-i18n="hero_scroll">Scroll</span>

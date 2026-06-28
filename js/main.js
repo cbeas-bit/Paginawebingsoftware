@@ -222,13 +222,26 @@ function initNav() {
   const hamburger = nav.querySelector('.nav-hamburger');
   const navLinks  = nav.querySelector('.nav-links');
   if (hamburger && navLinks) {
+    function openMenu() {
+      navLinks.classList.add('open');
+      hamburger.classList.add('open');
+      document.body.style.overflow = 'hidden'; // bloquea scroll del body
+    }
+    function closeMenu() {
+      navLinks.classList.remove('open');
+      hamburger.classList.remove('open');
+      document.body.style.overflow = ''; // restaura scroll
+    }
     hamburger.addEventListener('click', () => {
-      navLinks.classList.toggle('open');
-      hamburger.classList.toggle('open');
+      navLinks.classList.contains('open') ? closeMenu() : openMenu();
     });
-    // Close on link click
+    // Cerrar al tocar un enlace
     navLinks.querySelectorAll('a').forEach(a => {
-      a.addEventListener('click', () => navLinks.classList.remove('open'));
+      a.addEventListener('click', () => closeMenu());
+    });
+    // Cerrar al tocar fuera (el overlay es la nav-links misma)
+    navLinks.addEventListener('click', (e) => {
+      if (e.target === navLinks) closeMenu();
     });
   }
 
