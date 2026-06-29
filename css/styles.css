@@ -366,7 +366,7 @@ footer {
     display:none; flex-direction:column;
     position:fixed;
     top:0; left:0; right:0; bottom:0;
-    background:#061a1b; /* sólido, sin transparencia */
+    background:var(--petrol); /* #0f3839, petróleo plano del sitio */
     backdrop-filter:none;
     -webkit-backdrop-filter:none;
     justify-content:center; align-items:center;
