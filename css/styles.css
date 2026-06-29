@@ -375,6 +375,7 @@ footer {
     padding:80px 40px 60px;
     overflow-y:auto;
     -webkit-overflow-scrolling:touch;
+    /*estas dos lineas que siguen son para que en un iOS, el menu no se mimetice con el fondo y se vea el overlay (fondo color verde petroleo del menu)*/
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }
