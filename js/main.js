@@ -256,12 +256,6 @@ function initNav() {
     });
     const closeBtn = navLinks.querySelector('.nav-close-btn');
     if (closeBtn) closeBtn.addEventListener('click', closeMenu);
-    navLinks.querySelectorAll('a').forEach(a => {
-      a.addEventListener('click', () => closeMenu());
-    });
-    navLinks.addEventListener('click', (e) => {
-      if (e.target === navLinks) closeMenu();
-    });
   }
 
   document.querySelectorAll('.lang-btn').forEach(btn => {
