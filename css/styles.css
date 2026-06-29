@@ -375,6 +375,8 @@ footer {
     padding:80px 40px 60px;
     overflow-y:auto;
     -webkit-overflow-scrolling:touch;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
   .nav-links.open { display:flex; }
   .nav-links a { font-size:1.1rem; letter-spacing:0.18em; }
